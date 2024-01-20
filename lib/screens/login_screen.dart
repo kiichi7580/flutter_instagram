@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/text_field_input.dart';
+import 'package:instagram_flutter/resources/auth_methods.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,12 +16,32 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailEditingController = TextEditingController();
   final TextEditingController _passwordEditingController =
       TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailEditingController.dispose();
     _passwordEditingController.dispose();
     super.dispose();
+  }
+
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String res = await AuthMethods().loginUser(
+      email: _emailEditingController.text,
+      password: _passwordEditingController.text,
+    );
+
+    if (res == 'success') {
+    } else {
+      showSnackBar(res, context);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -34,8 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
-                child: Container(),
                 flex: 2,
+                child: Container(),
               ),
               // svg画像
               SvgPicture.asset(
@@ -67,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               // button login
               InkWell(
-                onTap: () {},
+                onTap: loginUser,
                 child: Container(
                   width: double.infinity,
                   alignment: Alignment.center,
@@ -80,14 +102,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     color: blueColor,
                   ),
-                  child: const Text('Log in'),
+                  child: _isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: primaryColor,
+                          ),
+                        )
+                      : const Text('Log in'),
                 ),
               ),
               const SizedBox(
                 height: 12,
               ),
               // Transition to sign up
-              Flexible(child: Container(), flex: 2,),
+              Flexible(
+                flex: 2,
+                child: Container(),
+              ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

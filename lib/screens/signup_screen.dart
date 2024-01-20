@@ -23,6 +23,7 @@ class _LoginScreenState extends State<SignupScreen> {
   final TextEditingController _usernameEditingController =
       TextEditingController();
   Uint8List? _image;
+  bool _isloading = false;
 
   @override
   void dispose() {
@@ -38,6 +39,27 @@ class _LoginScreenState extends State<SignupScreen> {
     setState(() {
       _image = im;
     });
+  }
+
+  void signUpUser() async {
+    setState(() {
+      _isloading = true;
+    });
+    String res = await AuthMethods().signupUser(
+      email: _emailEditingController.text,
+      password: _passwordEditingController.text,
+      username: _usernameEditingController.text,
+      bio: _bioEditingController.text,
+      file: _image!,
+    );
+
+    setState(() {
+      _isloading = false;
+    });
+
+    if (res == 'success') {
+      showSnackBar(res, context);
+    } else {}
   }
 
   @override
@@ -58,7 +80,6 @@ class _LoginScreenState extends State<SignupScreen> {
               // svg画像
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
-                color: primaryColor,
                 height: 64,
               ),
               const SizedBox(
@@ -67,16 +88,16 @@ class _LoginScreenState extends State<SignupScreen> {
               Stack(
                 children: [
                   _image != null
-                  ? CircleAvatar(
-                    radius: 64,
-                    backgroundImage: MemoryImage(_image!),
-                  ) :
-                  const CircleAvatar(
-                    radius: 64,
-                    backgroundImage: NetworkImage(
-                      'https://clipart-library.com/new_gallery/280-2806732_png-file-svg-default-profile-picture-png.png',
-                    ),
-                  ),
+                      ? CircleAvatar(
+                          radius: 64,
+                          backgroundImage: MemoryImage(_image!),
+                        )
+                      : const CircleAvatar(
+                          radius: 64,
+                          backgroundImage: NetworkImage(
+                            'https://clipart-library.com/new_gallery/280-2806732_png-file-svg-default-profile-picture-png.png',
+                          ),
+                        ),
                   Positioned(
                     bottom: -10,
                     left: 80,
@@ -130,16 +151,7 @@ class _LoginScreenState extends State<SignupScreen> {
               ),
               // button login
               InkWell(
-                onTap: () async {
-                  String res = await AuthMethods().signupUser(
-                    email: _emailEditingController.text,
-                    password: _passwordEditingController.text,
-                    username: _usernameEditingController.text,
-                    bio: _bioEditingController.text,
-                    file: _image!,
-                  );
-                  print(res);
-                },
+                onTap: signUpUser,
                 child: Container(
                   width: double.infinity,
                   alignment: Alignment.center,
@@ -152,7 +164,13 @@ class _LoginScreenState extends State<SignupScreen> {
                     ),
                     color: blueColor,
                   ),
-                  child: const Text('sign up'),
+                  child: _isloading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: primaryColor,
+                          ),
+                        )
+                      : const Text('sign up'),
                 ),
               ),
               const SizedBox(

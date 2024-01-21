@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_flutter/resources/auth_methods.dart';
+import 'package:instagram_flutter/responsive/responsive_layout_screen.dart';
+import 'package:instagram_flutter/screens/login_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/text_field_input.dart';
+import 'package:instagram_flutter/responsive/mobile_screen_layout.dart';
+import 'package:instagram_flutter/responsive/web_screen_layout.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -23,7 +27,7 @@ class _LoginScreenState extends State<SignupScreen> {
   final TextEditingController _usernameEditingController =
       TextEditingController();
   Uint8List? _image;
-  bool _isloading = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -43,7 +47,7 @@ class _LoginScreenState extends State<SignupScreen> {
 
   void signUpUser() async {
     setState(() {
-      _isloading = true;
+      _isLoading = true;
     });
     String res = await AuthMethods().signupUser(
       email: _emailEditingController.text,
@@ -54,12 +58,30 @@ class _LoginScreenState extends State<SignupScreen> {
     );
 
     setState(() {
-      _isloading = false;
+      _isLoading = false;
     });
 
     if (res == 'success') {
       showSnackBar(res, context);
-    } else {}
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            webScreenLayout: WebScreenLayout(),
+            mobileScreenLayout: MobileScreenLayout(),
+          ),
+        ),
+      );
+    } else {
+      showSnackBar(res, context);
+    }
+  }
+
+  void navigateToLogin() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
   }
 
   @override
@@ -81,6 +103,7 @@ class _LoginScreenState extends State<SignupScreen> {
               SvgPicture.asset(
                 'assets/ic_instagram.svg',
                 height: 64,
+                color: primaryColor,
               ),
               const SizedBox(
                 height: 64,
@@ -164,7 +187,7 @@ class _LoginScreenState extends State<SignupScreen> {
                     ),
                     color: blueColor,
                   ),
-                  child: _isloading
+                  child: _isLoading
                       ? const Center(
                           child: CircularProgressIndicator(
                             color: primaryColor,
@@ -192,13 +215,13 @@ class _LoginScreenState extends State<SignupScreen> {
                     child: const Text("Don't have an account?"),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: navigateToLogin,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         vertical: 8,
                       ),
                       child: const Text(
-                        "Sign up.",
+                        "login.",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),

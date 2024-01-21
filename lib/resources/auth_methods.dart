@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:instagram_flutter/models/user.dart' as model;
@@ -9,6 +10,15 @@ import 'package:instagram_flutter/resources/storage_methods.dart';
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firestore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.formSnap(snap);
+  }
 
   // sign up user
   Future<String> signupUser({
@@ -44,8 +54,10 @@ class AuthMethods {
         );
 
         // add user to our database
-        await _firestore.collection('users').doc(cred.user!.uid).set(user.toJson(),);
-        
+        await _firestore.collection('users').doc(cred.user!.uid).set(
+              user.toJson(),
+            );
+
         res = 'success';
       }
     } catch (err) {
@@ -68,6 +80,20 @@ class AuthMethods {
         res = 'success';
       } else {
         res = 'Please enter all the field.';
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'invalid-email') {
+        res = 'メールアドレスが有効で有効ではありません。';
+      }
+      if (e.code == 'email-already-in-use') {
+        res = 'そのメールアドレスを持つアカウントは既に存在しています。';
+      }
+      if (e.code == 'operation-not-allowed') {
+        res =
+            'アカウントが有効ではありません。Firebase コンソールの Auth タブで、メール/パスワード アカウントを有効にしてください。';
+      }
+      if (e.code == 'weak-password') {
+        res = 'パスワードを強化してください。';
       }
     } catch (err) {
       res = err.toString();

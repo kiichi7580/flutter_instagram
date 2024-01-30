@@ -66,7 +66,7 @@ class FirestoreMethods {
     String res = 'Some error occurred.';
     try {
       if (text.isNotEmpty) {
-        String commentId = Uuid().v1();
+        String commentId = const Uuid().v1();
         _fireStore
             .collection('posts')
             .doc(postId)

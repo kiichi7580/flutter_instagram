@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart' as model;
 import 'package:instagram_flutter/providers/user_provider.dart';
 import 'package:instagram_flutter/resources/firestore_methods.dart';
 import 'package:instagram_flutter/screens/comments_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/likes_animation.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +24,27 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   bool isLikeAnimating = false;
+  int commentsLen = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    getComments();
+  }
+
+  void getComments() async {
+    try {
+      QuerySnapshot snap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .collection('comments')
+          .get();
+      commentsLen = snap.docs.length;
+    } catch (e) {
+      showSnackBar(e.toString(), context);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +103,12 @@ class _PostCardState extends State<PostCard> {
                             'Delete',
                           ]
                               .map((e) => InkWell(
-                                    onTap: () {},
+                                    onTap: () async {
+                                      FirestoreMethods().deletePost(
+                                        widget.snap['postId'],
+                                      );
+                                      Navigator.of(context).pop();
+                                    },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 12,
@@ -250,7 +278,7 @@ class _PostCardState extends State<PostCard> {
                       vertical: 4,
                     ),
                     child: Text(
-                      'View all 200 comments',
+                      'View all $commentsLen comments',
                       style: const TextStyle(
                         fontSize: 16,
                         color: secondaryColor,

@@ -32,34 +32,34 @@ class FeedScreen extends StatelessWidget {
         builder: (context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (snapshot.hasData) {
-            // snapshot.data を使用して処理...
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) => Container(
-                child: PostCard(
-                  snap: snapshot.data!.docs[index].data(),
-                ),
-              ),
-            );
-          } else {
-            // データがまだ読み込まれていない場合の処理...
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          // return ListView.builder(
-          //   itemCount: snapshot.data!.docs.length,
-          //   itemBuilder: (context, index) => PostCard(
-          //     snap: snapshot.data!.docs[index].data(),
-          //   ),
-          // );
+          // if (snapshot.hasData) {
+          //   // snapshot.data を使用して処理...
+          //   return ListView.builder(
+          //     itemCount: snapshot.data!.docs.length,
+          //     itemBuilder: (context, index) => Container(
+          //       child: PostCard(
+          //         snap: snapshot.data!.docs[index].data(),
+          //       ),
+          //     ),
+          //   );
+          // } else {
+          //   // データがまだ読み込まれていない場合の処理...
+          //   return const Center(
+          //     child: CircularProgressIndicator(),
+          //   );
+          // }
+
+          return ListView.builder(
+            itemCount: snapshot.data!.docs.length,
+            itemBuilder: (context, index) => PostCard(
+              snap: snapshot.data!.docs[index].data(),
+            ),
+          );
         },
       ),
     );
